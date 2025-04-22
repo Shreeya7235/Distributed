@@ -1,44 +1,41 @@
 <?php
-$serverName = "localhost";
-$userName = "root";
-$password = "";
-$databaseName = "task_manager";
-
-// Create connection
-$conn = new mysqli($serverName, $userName, $password);
-
-if ($conn->connect_error) {
-    die(json_encode(['error' => 'Database connection failed: ' . $conn->connect_error]));
-}
-
-// Create and select database
-$conn->query("CREATE DATABASE IF NOT EXISTS $databaseName");
-$conn->select_db($databaseName);
-
-// Create tasks table
-$conn->query("CREATE TABLE IF NOT EXISTS tasks (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)");
-
-// Handle requests
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = $conn->real_escape_string($_POST['title'] ?? '');
-    $description = $conn->real_escape_string($_POST['description'] ?? '');
-
-    if ($title && $description) {
-        $conn->query("INSERT INTO tasks (title, description) VALUES ('$title', '$description')");
-        echo json_encode(['success' => 'Task added successfully']);
-    } else {
-        echo json_encode(['error' => 'Invalid input']);
-    }
-} elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $result = $conn->query("SELECT * FROM tasks ORDER BY created_at DESC");
-    $tasks = $result->fetch_all(MYSQLI_ASSOC);
-    echo json_encode($tasks);
-}
-
-$conn->close();
+$pageTitle = "Welcome to My Simple PHP Website";
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $pageTitle; ?></title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1><?php echo $pageTitle; ?></h1>
+    <p>This is a sample PHP website without database connectivity. You can extend it with your own content!</p>
+
+    <h2>Contact Us</h2>
+    <?php
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $name = htmlspecialchars($_POST['name']);
+        $email = htmlspecialchars($_POST['email']);
+        $message = htmlspecialchars($_POST['message']);
+
+        echo "<p class='success'><strong>Thank you, $name!</strong> Your message has been received.</p>";
+        echo "<p class='success'>We will reply to <em>$email</em> as soon as possible.</p>";
+    }
+    ?>
+
+    <form method="post" action="" onsubmit="return validateForm()">
+        <input type="text" name="name" id="name" placeholder="Your Name" required>
+        <input type="email" name="email" id="email" placeholder="Your Email" required>
+        <textarea name="message" id="message" rows="4" placeholder="Your Message" required></textarea>
+        <button type="submit">Send Message</button>
+    </form>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
